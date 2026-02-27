@@ -9,7 +9,7 @@ session_start();
 // ── Config (uit global-config) ─────────────────────────────────────────────
 const DB_HOST = 'localhost';
 const DB_USER = 'dev';
-const DB_PASS = '1123Start!';
+const DB_PASS = '';
 const DB_NAME = 'dev_db';
 
 function db(): PDO {
