@@ -1,0 +1,4 @@
+node_modules/
+test-results/
+generate-icons.php
+/tmp/

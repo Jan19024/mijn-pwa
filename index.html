@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="description" content="Mijn App">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Mijn App</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      opacity: 0.9;
+    }
+
+    /* Login icon knop */
+    #loginBtn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: #fff;
+    }
+
+    #loginBtn:hover {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.6);
+      transform: scale(1.05);
+    }
+
+    #loginBtn svg { pointer-events: none; }
+
+    /* User avatar (ingelogd) */
+    #userAvatar {
+      display: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: 2px solid rgba(255,255,255,0.4);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    #userAvatar:hover { transform: scale(1.05); }
+
+    /* Hoofd content */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .welcome-card {
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    .welcome-card h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .welcome-card p {
+      opacity: 0.7;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+    }
+
+    /* Modal overlay */
+    #modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    #modal.open { display: flex; }
+
+    .modal-card {
+      background: rgba(22, 33, 62, 0.95);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover { background: rgba(255,255,255,0.2); }
+
+    .modal-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .modal-card .subtitle {
+      font-size: 0.875rem;
+      opacity: 0.6;
+      margin-bottom: 1.75rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      opacity: 0.7;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .form-group input::placeholder { opacity: 0.4; }
+
+    .form-group input:focus {
+      border-color: rgba(102,126,234,0.8);
+      background: rgba(255,255,255,0.12);
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .submit-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      background: rgba(220,53,69,0.2);
+      border: 1px solid rgba(220,53,69,0.4);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.875rem;
+      color: #ff8896;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    /* Gebruikersmenu */
+    #userMenu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 1rem;
+      background: rgba(22,33,62,0.97);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      min-width: 180px;
+      z-index: 50;
+      overflow: hidden;
+      animation: slideUp 0.15s ease;
+    }
+
+    #userMenu.open { display: block; }
+
+    .menu-header {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .menu-name { font-weight: 700; font-size: 0.95rem; }
+    .menu-email { font-size: 0.75rem; opacity: 0.5; }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.9rem;
+      border: none;
+      background: none;
+      color: #fff;
+      width: 100%;
+      text-align: left;
+    }
+
+    .menu-item:hover { background: rgba(255,255,255,0.08); }
+    .menu-item.danger { color: #ff8896; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(22,33,62,0.97);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      z-index: 200;
+      transition: transform 0.3s ease;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="app-title">Mijn App</span>
+
+    <!-- Login icon (uitgelogd) -->
+    <button id="loginBtn" title="Inloggen" aria-label="Inloggen">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="4"/>
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      </svg>
+    </button>
+
+    <!-- Avatar (ingelogd) -->
+    <div id="userAvatar" title="Account menu" aria-label="Account menu"></div>
+  </header>
+
+  <!-- Gebruikersmenu -->
+  <div id="userMenu">
+    <div class="menu-header">
+      <div class="menu-name" id="menuName"></div>
+      <div class="menu-email" id="menuEmail"></div>
+    </div>
+    <button class="menu-item danger" id="logoutBtn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Uitloggen
+    </button>
+  </div>
+
+  <main>
+    <div class="welcome-card" id="guestView">
+      <h1>Welkom</h1>
+      <p>Log in om verder te gaan.</p>
+      <button class="cta-btn" id="ctaLoginBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Inloggen
+      </button>
+    </div>
+
+    <div class="welcome-card" id="userView" style="display:none">
+      <h1>Hallo, <span id="userName"></span>!</h1>
+      <p>Je bent ingelogd. Welkom terug.</p>
+    </div>
+  </main>
+
+  <!-- Login modal -->
+  <div id="modal" role="dialog" aria-modal="true" aria-label="Inloggen">
+    <div class="modal-card">
+      <button class="modal-close" id="modalClose" aria-label="Sluiten">✕</button>
+      <h2>Inloggen</h2>
+      <p class="subtitle">Voer je gegevens in</p>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">E-mailadres</label>
+          <input type="email" id="email" name="email" placeholder="jouw@email.nl" autocomplete="email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Wachtwoord</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span id="btnText">Inloggen</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // ── State ──────────────────────────────────────────────
+    let currentUser = null;
+
+    // ── DOM refs ───────────────────────────────────────────
+    const loginBtn    = document.getElementById('loginBtn');
+    const userAvatar  = document.getElementById('userAvatar');
+    const userMenu    = document.getElementById('userMenu');
+    const modal       = document.getElementById('modal');
+    const modalClose  = document.getElementById('modalClose');
+    const loginForm   = document.getElementById('loginForm');
+    const errorMsg    = document.getElementById('errorMsg');
+    const submitBtn   = document.getElementById('submitBtn');
+    const btnText     = document.getElementById('btnText');
+    const guestView   = document.getElementById('guestView');
+    const userView    = document.getElementById('userView');
+    const ctaLoginBtn = document.getElementById('ctaLoginBtn');
+
+    // ── UI helpers ─────────────────────────────────────────
+    function openModal() {
+      modal.classList.add('open');
+      errorMsg.style.display = 'none';
+      loginForm.reset();
+      document.getElementById('email').focus();
+    }
+
+    function closeModal() {
+      modal.classList.remove('open');
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    }
+
+    function setUser(user) {
+      currentUser = user;
+      if (user) {
+        const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+        userAvatar.textContent = initials;
+        userAvatar.style.display = 'flex';
+        loginBtn.style.display = 'none';
+        guestView.style.display = 'none';
+        userView.style.display = 'block';
+        document.getElementById('userName').textContent = user.name.split(' ')[0];
+        document.getElementById('menuName').textContent = user.name;
+        document.getElementById('menuEmail').textContent = user.email;
+      } else {
+        userAvatar.style.display = 'none';
+        loginBtn.style.display = 'flex';
+        guestView.style.display = 'block';
+        userView.style.display = 'none';
+        userMenu.classList.remove('open');
+      }
+    }
+
+    // ── Events ─────────────────────────────────────────────
+    loginBtn.addEventListener('click', openModal);
+    ctaLoginBtn.addEventListener('click', openModal);
+    modalClose.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { closeModal(); userMenu.classList.remove('open'); }
+    });
+
+    userAvatar.addEventListener('click', e => {
+      e.stopPropagation();
+      userMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => userMenu.classList.remove('open'));
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('api/auth.php?action=logout', { method: 'POST' });
+      setUser(null);
+      showToast('Je bent uitgelogd');
+    });
+
+    // ── Login form ─────────────────────────────────────────
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      errorMsg.style.display = 'none';
+      submitBtn.disabled = true;
+      btnText.textContent = 'Bezig…';
+
+      const data = {
+        email:    document.getElementById('email').value.trim(),
+        password: document.getElementById('password').value
+      };
+
+      try {
+        const body = new URLSearchParams(data);
+        const res  = await fetch('api/auth.php?action=login', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body:    body.toString()
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          setUser(json.user);
+          closeModal();
+          showToast('Welkom terug, ' + json.user.name.split(' ')[0] + '!');
+        } else {
+          errorMsg.textContent = json.message || 'Inloggen mislukt.';
+          errorMsg.style.display = 'block';
+        }
+      } catch {
+        errorMsg.textContent = 'Verbindingsfout. Probeer opnieuw.';
+        errorMsg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Inloggen';
+      }
+    });
+
+    // ── Sessie controleren bij laden ───────────────────────
+    (async () => {
+      try {
+        const res  = await fetch('api/auth.php?action=check');
+        const json = await res.json();
+        if (json.loggedIn) setUser(json.user);
+      } catch {/* geen server beschikbaar */}
+    })();
+  </script>
+
+  <script>
+    // PWA service worker registratie
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
